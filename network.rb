@@ -4,9 +4,8 @@ class Network
   attr_accessor :size, :containers, :router
 
   def self.create_from_file filename
-    begin
-      file = File.open(filename)
-
+    this = nil
+    File.open(filename) do |file|
       size = file.readline.split[1]
       this = self.new(size)
       this.router = Container.new(file.readline.split[1])
@@ -14,17 +13,18 @@ class Network
       file.each_line do |line|
         this.containers << Container.new(line.split[1])
       end
-
-      file.close
-      this
-    rescue
-      puts "Failed to create network from file #{filename}"
-      nil
     end
+    this
   end
 
-  def self.create_fresh size
-
+  def write_to_file filename
+    File.open(filename, 'w') do |file|
+      file.write("SIZE #{@size}\n")
+      file.write("ROUTER #{@router.name}\n")
+      @containers.each do |container|
+        file.write("CONTAINER #{container.name}\n")
+      end
+    end
   end
 
 private
