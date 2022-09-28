@@ -40,6 +40,12 @@ class Container
     nil
   end
 
+  def run command
+    if running?
+      `sudo lxc-attach -n "#{@name}" -- bash -c "#{command}"`
+    end
+  end
+
 private
   def lxc_info
     if @name then `sudo lxc-info -n "#{@name}"` else "" end

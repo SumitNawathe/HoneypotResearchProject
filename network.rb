@@ -34,6 +34,20 @@ class Network
     end
   end
 
+  def create_and_start_all
+    (@containers + [@router]).each do |container|
+      container.create
+      container.start
+    end
+  end
+
+  def stop_and_destroy_all
+    (@containers + [@router]).each do |container|
+      container.stop
+      container.destroy
+    end
+  end
+
 private
   def initialize size
     @size = size.to_i
