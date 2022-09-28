@@ -17,6 +17,13 @@ class Network
     this
   end
 
+  def self.create_fresh size, prefix
+    this = self.new(size)
+    this.containers = (0..size).map { |n| Container.new("#{prefix}-container-#{n}") }
+    this.router = Container.new("#{prefix}-router")
+    this
+  end
+
   def write_to_file filename
     File.open(filename, 'w') do |file|
       file.write("SIZE #{@size}\n")
