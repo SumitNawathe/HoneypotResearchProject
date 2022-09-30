@@ -1,4 +1,4 @@
-#!/ibin/bash
+#!/bin/bash
 
 # network data structures
 CONTAINERS=()
