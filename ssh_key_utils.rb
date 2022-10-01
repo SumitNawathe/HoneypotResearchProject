@@ -16,7 +16,7 @@ def initialize_ssh container, password=nil
   container.run "echo \\\"PermitRootLogin yes\\\" >> /etc/ssh/sshd_config"
   if password
     # set container root password
-    container.run `echo \\\"#{password}\n#{password}\n\\\" | sudo passwd root`
+    container.run "echo -e \\\"#{password}\n#{password}\n\\\" | sudo passwd root"
   else
     # only allow public key authentication
     container.run "echo \\\"PasswordAuthentication no\\\" >> /etc/ssh/sshd_config"
