@@ -46,6 +46,18 @@ class Container
     end
   end
 
+  def root_fs
+    "/var/lib/lxc/#{@name}/rootfs"
+  end
+
+  def auth_log_file
+    "#{root_fs}/var/log/auth.log"
+  end
+
+  def redirect_auth_log_to output_file
+    `./background_tail.sh #{auth_log_file} #{output_file}`
+  end
+
 private
   def lxc_info
     if @name then `sudo lxc-info -n "#{@name}"` else "" end

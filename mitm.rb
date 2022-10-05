@@ -13,7 +13,7 @@ class MITM
   end
 
   def stop
-    forever_line = `sudo forever list | grep "-p #{@port}"`
+    forever_line = `sudo forever list | grep "#{@port}"`
     return if forever_line == ""
     forever_num = forever_line.match(/.*\[([0-9])\].*/)[1]
     `sudo forever stop #{forever_num}`
@@ -37,7 +37,7 @@ class MITM
   end
 
   def self.get_port_from_external_ip external_ip
-    filename = File.join(File.expand_path("~"), "ip_to_mitm_port.txt")
+    filename = `pwd`.chomp + "/ip_to_mitm_port.txt"
     File.open(filename).readlines.each do |line|
       ip, port = line.split
       return port if ip == external_ip
