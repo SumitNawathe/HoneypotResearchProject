@@ -48,6 +48,14 @@ class Network
     end
   end
 
+  def redirect_auth_logs_to directory
+    `mkdir #{directory}`
+    (@containers + [@router]).each do |container|
+      outfilename = "#{directory}/#{container.name}"
+      container.redirect_auth_log_to outfilename
+    end
+  end
+
 private
   def initialize size
     @size = size.to_i

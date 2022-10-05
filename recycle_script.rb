@@ -41,7 +41,10 @@ end
 # TODO
 
 # wait until attacker enters
-# TODO
+home_directory = `cd && pwd`.chomp
+`sudo chmod a+r #{home_directory}/mitm.log`
+`sudo tail -n 0 -f "#{home_directory}/mitm.log" | grep -Eq "uthenticated"`
+puts "== LOG == attacker entered"
 
 # create timer to destroy honeypot
 scheduler = Rufus::Scheduler.new
@@ -50,7 +53,7 @@ scheduler.in '1m' do
 
   mitm.disconnect_from_external_ip(external_ip)
   mitm.stop
-  `rm -f ~/mitm.log`
+  # `rm -f ~/mitm.log`
   n.stop_and_destroy_all
   puts "== LOG == honeypot destroyed"
 
