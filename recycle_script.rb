@@ -5,6 +5,9 @@ require './mitm'
 
 # param: ip address
 # randomize network creation
+EXTERNAL_IP = "128.8.238.197" # TODO hardcoded
+HONEYPOT_DIR = `cd && pwd`.chomp + "/#{EXTERNAL_IP}_files"
+`mkdir #{HONEYPOT_DIR}`
 
 # create network
 # TODO: must be randomized
@@ -14,8 +17,7 @@ puts "== LOG == created network"
 sleep(5)
 
 # create MITM
-external_ip = "128.8.238.197" # TODO hardcoded
-port = MITM.get_port_from_external_ip(external_ip)
+port = MITM.get_port_from_external_ip(EXTERNAL_IP)
 mitm = MITM.new(n, port)
 puts "== LOG == created mitm"
 sleep(3)
@@ -23,9 +25,9 @@ sleep(3)
 # connect MITM to router container and external IP
 initialize_ssh(n.router, "password")
 sleep(3)
-mitm.start("~/mitm.log") # TODO hardcoded
+mitm.start("#{HONEYPOT_DIR}/mitm.log") # TODO hardcoded
 sleep(3)
-mitm.connect_to_external_ip(external_ip)
+mitm.connect_to_external_ip(EXTERNAL_IP)
 sleep(3)
 puts "== LOG == started mitm, connected to external ip"
 
@@ -40,10 +42,12 @@ end
 # container NAT stuff
 # TODO
 
+# create log files
+n.redirect_auth_logs_to HONEYPOT_DIR
+
 # wait until attacker enters
-home_directory = `cd && pwd`.chomp
-`sudo chmod a+r #{home_directory}/mitm.log`
-`sudo tail -n 0 -f "#{home_directory}/mitm.log" | grep -Eq "uthenticated"`
+`sudo chmod a+r #{HONEYPOT_DIR}/mitm.log`
+`sudo tail -n 0 -f "#{HONEYPOT_DIR}/mitm.log" | grep -Eq "uthenticated"`
 puts "== LOG == attacker entered"
 
 # create timer to destroy honeypot
@@ -51,7 +55,7 @@ scheduler = Rufus::Scheduler.new
 scheduler.in '1m' do
   # TODO: retrieve logs and attacker information before destroying
 
-  mitm.disconnect_from_external_ip(external_ip)
+  mitm.disconnect_from_external_ip(EXTERNAL_IP)
   mitm.stop
   # `rm -f ~/mitm.log`
   n.stop_and_destroy_all

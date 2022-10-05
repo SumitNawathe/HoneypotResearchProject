@@ -35,14 +35,14 @@ class Network
   end
 
   def create_and_start_all
-    (@containers + [@router]).each do |container|
+    containers_and_router.each do |container|
       container.create
       container.start
     end
   end
 
   def stop_and_destroy_all
-    (@containers + [@router]).each do |container|
+    containers_and_router.each do |container|
       container.stop
       container.destroy
     end
@@ -50,8 +50,8 @@ class Network
 
   def redirect_auth_logs_to directory
     `mkdir #{directory}`
-    (@containers + [@router]).each do |container|
-      outfilename = "#{directory}/#{container.name}"
+    containers_and_router.each do |container|
+      outfilename = "#{directory}/#{container.name}.log"
       container.redirect_auth_log_to outfilename
     end
   end
@@ -61,6 +61,10 @@ private
     @size = size.to_i
     @containers = []
     @router = nil
+  end
+
+  def containers_and_router
+    @containers + [@router]
   end
 end
 
