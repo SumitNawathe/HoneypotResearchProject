@@ -13,7 +13,7 @@ class MITM
   end
 
   def stop
-    forever_line = `sudo forever list | grep "-p #{@port}"`
+    forever_line = `sudo forever list | grep "#{@port}"`
     return if forever_line == ""
     forever_num = forever_line.match(/.*\[([0-9])\].*/)[1]
     `sudo forever stop #{forever_num}`
