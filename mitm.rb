@@ -37,7 +37,7 @@ class MITM
   end
 
   def self.get_port_from_external_ip external_ip
-    filename = File.join(File.expand_path("~"), "ip_to_mitm_port.txt")
+    filename = `pwd`.chomp + "/ip_to_mitm_port.txt"
     File.open(filename).readlines.each do |line|
       ip, port = line.split
       return port if ip == external_ip
