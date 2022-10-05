@@ -2,6 +2,7 @@ require 'rufus-scheduler'
 require './network'
 require './ssh_key_utils'
 require './mitm'
+require './data_utils'
 
 # param: ip address
 # randomize network creation
@@ -13,6 +14,7 @@ HONEYPOT_DIR = `cd && pwd`.chomp + "/#{EXTERNAL_IP}_files"
 # TODO: must be randomized
 n = Network.create_fresh(3, "prefix") # TODO hardcoded
 n.create_and_start_all
+n.write_to_file "#{HONEYPOT_DIR}/network_layout.txt"
 puts "== LOG == created network"
 sleep(5)
 
@@ -53,11 +55,17 @@ puts "== LOG == attacker entered"
 # create timer to destroy honeypot
 scheduler = Rufus::Scheduler.new
 scheduler.in '1m' do
-  # TODO: retrieve logs and attacker information before destroying
-
+  # disconnect mitm (kick attacker out)
   mitm.disconnect_from_external_ip(EXTERNAL_IP)
   mitm.stop
-  # `rm -f ~/mitm.log`
+  puts "=== LOG === mitm stopped"
+
+  # retrieve and package logs/data
+  package_honeypot_data(EXTERNAL_IP)
+  clear_honeypot_dir(EXTERNAL_IP)
+  puts "=== LOG === logs retrieved"
+
+  # stop honeypot containers
   n.stop_and_destroy_all
   puts "== LOG == honeypot destroyed"
 
