@@ -3,6 +3,7 @@ require './network'
 require './ssh_key_utils'
 require './mitm'
 require './data_utils'
+require './nat_rules'
 
 # param: ip address
 # randomize network creation
@@ -42,7 +43,8 @@ n.containers.each_with_index do |container, index|
 end
 
 # container NAT stuff
-# TODO
+# CHECK
+nat_rules.nat_router_container
 
 # create log files
 n.redirect_auth_logs_to HONEYPOT_DIR
