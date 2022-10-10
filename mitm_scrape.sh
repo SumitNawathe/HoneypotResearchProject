@@ -6,4 +6,5 @@ NUM_COMMANDS=$(cat "$DIRECTORY_PATH/mitm.log" | grep "line from reader" | awk '{
 
 cat "$DIRECTORY_PATH/mitm.log" | grep "line from reader" | cut -d' ' -f9- > "$DIRECTORY_PATH/filtered_mitm.log"
 
+echo "$NUM_COMMANDS"
 
