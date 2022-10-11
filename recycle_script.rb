@@ -44,7 +44,7 @@ end
 
 # container NAT stuff
 # CHECK
-nat_rules.nat_router_container
+# nat_router_container
 
 # create log files
 n.redirect_auth_logs_to HONEYPOT_DIR
