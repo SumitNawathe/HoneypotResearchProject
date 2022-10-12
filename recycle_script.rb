@@ -1,3 +1,5 @@
+#!/usr/bin/ruby
+
 require 'rufus-scheduler'
 require './network'
 require './ssh_key_utils'
@@ -6,14 +8,20 @@ require './data_utils'
 require './nat_rules'
 
 # param: ip address
-# randomize network creation
-EXTERNAL_IP = "128.8.238.197" # TODO hardcoded
-HONEYPOT_DIR = `cd && pwd`.chomp + "/#{EXTERNAL_IP}_files"
+if ARGV.length != 1
+  puts "Usage: #{$0} [external ip address]"
+  exit(1)
+end
+EXTERNAL_IP = ARGV[0]
+
+# get relevant directories
+HOME_DIR = `cd && pwd`.chomp
+HONEYPOT_DIR = "#{HOME_DIR}/#{EXTERNAL_IP}_files"
 `mkdir #{HONEYPOT_DIR}`
 
 # create network
-# TODO: must be randomized
-n = Network.create_fresh(3, "prefix") # TODO hardcoded
+network_size = [5, 10].sample
+n = Network.create_fresh(network_size, "prefix")
 n.create_and_start_all
 n.write_to_file "#{HONEYPOT_DIR}/network_layout.txt"
 puts "== LOG == created network"
@@ -28,7 +36,7 @@ sleep(3)
 # connect MITM to router container and external IP
 initialize_ssh(n.router, "password")
 sleep(3)
-mitm.start("#{HONEYPOT_DIR}/mitm.log") # TODO hardcoded
+mitm.start("#{HONEYPOT_DIR}/mitm.log")
 sleep(3)
 mitm.connect_to_external_ip(EXTERNAL_IP)
 sleep(3)
@@ -42,12 +50,10 @@ n.containers.each_with_index do |container, index|
   puts "== LOG == connected container #{index} to router"
 end
 
-# container NAT stuff
-# CHECK
-# nat_router_container
-
 # create log files
 n.redirect_auth_logs_to HONEYPOT_DIR
+puts "== LOG == auth log files redirected"
+puts "== LOG == ready to accept attackers"
 
 # wait until attacker enters
 `sudo chmod a+r #{HONEYPOT_DIR}/mitm.log`
