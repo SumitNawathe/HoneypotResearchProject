@@ -34,7 +34,7 @@ puts "== LOG == created mitm"
 sleep(3)
 
 # connect MITM to router container and external IP
-initialize_ssh(n.router, "password")
+initialize_ssh(n.router)
 sleep(3)
 mitm.start("#{HONEYPOT_DIR}/mitm.log")
 sleep(3)
@@ -48,6 +48,11 @@ n.containers.each_with_index do |container, index|
   place_public_key(n.router, container)
   add_alias(n.router, container, "machine#{index}")
   puts "== LOG == connected container #{index} to router"
+end
+
+# enforce key login on containers
+n.containers.each do
+  enforce_key_login(container)
 end
 
 # create log files

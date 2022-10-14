@@ -26,4 +26,5 @@ END
 cd
 cp -r ./fakestockdata/data/generated/* .
 rm -rf fakestockdata/
+rm -- "$0"
 
