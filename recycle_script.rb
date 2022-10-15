@@ -50,9 +50,9 @@ n.containers.each_with_index do |container, index|
   add_alias(n.router, container, "machine#{index}")
   logger.log "connected container #{index} to router"
 
-  # honey_script_name = ['honey_healthcare.sh', 'honey_financial.sh'].sample
-  # container.create_honey honey_script_name
-  # logger.log "created honey in container #{index}"
+  honey_script_name = ['honey_healthcare.sh', 'honey_financial.sh'].sample
+  container.create_honey honey_script_name
+  logger.log "created honey in container #{index}"
 end
 
 # enforce key login on containers
