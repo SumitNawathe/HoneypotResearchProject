@@ -10,19 +10,19 @@ require './network'
 #filename = ARGV[0]
 #network = Network.create_from_file(filename)
 
-def initialize_ssh container, password=nil
+# create ssh server, set root password as "password"
+def initialize_ssh container
   container.run "sudo apt-get -y install openssh-server"
   container.run "cd && ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa <<<y >/dev/null 2>&1"
   container.run "echo \\\"PermitRootLogin yes\\\" >> /etc/ssh/sshd_config"
-  if password
-    # set container root password
-    container.run "echo -e \\\"#{password}\n#{password}\n\\\" | sudo passwd root"
-  else
-    # only allow public key authentication
-    container.run "echo \\\"PasswordAuthentication no\\\" >> /etc/ssh/sshd_config"
-    container.run "echo \\\"PubkeyAuthentication yes\\\" >> /etc/ssh/sshd_config"
-  end
- container.run "echo \\\"HashKnownHosts no\\\" >> /etc/ssh/ssh_config"
+  container.run "echo -e \\\"password\npassword\n\\\" | sudo passwd root"
+  container.run "echo \\\"HashKnownHosts no\\\" >> /etc/ssh/ssh_config"
+  container.run "sudo service ssh restart"
+end
+
+def enforce_key_login container
+  container.run "echo \\\"PasswordAuthentication no\\\" >> /etc/ssh/sshd_config"
+  container.run "echo \\\"PubkeyAuthentication yes\\\" >> /etc/ssh/sshd_config"
   container.run "sudo service ssh restart"
 end
 

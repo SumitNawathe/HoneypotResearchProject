@@ -36,8 +36,8 @@ mitm = MITM.new(n, port)
 logger.log "created mitm"
 sleep(3)
 
-# create and start mitm
-initialize_ssh(n.router, "password")
+# connect MITM to router container and external IP
+initialize_ssh(n.router)
 sleep(3)
 mitm.start("#{HONEYPOT_DIR}/mitm.log")
 sleep(3)
@@ -53,6 +53,11 @@ n.containers.each_with_index do |container, index|
   honey_script_name = ['honey_healthcare.sh', 'honey_financial.sh'].sample
   container.create_honey honey_script_name
   logger.log "created honey in container #{index}"
+end
+
+# enforce key login on containers
+n.containers.each do
+  enforce_key_login(container)
 end
 
 # create log files

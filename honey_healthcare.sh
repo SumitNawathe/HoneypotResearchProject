@@ -23,5 +23,6 @@ cp ./output/csv/* .
 rm config
 rm synthea-with-dependencies.jar
 sudo rm -rf output
+rm -- "$0"
 
 
