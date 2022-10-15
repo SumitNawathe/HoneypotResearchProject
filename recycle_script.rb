@@ -43,12 +43,16 @@ mitm.start("#{HONEYPOT_DIR}/mitm.log")
 sleep(3)
 logger.log "mitm started"
 
-# container ssh linking
+# container ssh setup and linking
 n.containers.each_with_index do |container, index|
   initialize_ssh(container)
   place_public_key(n.router, container)
   add_alias(n.router, container, "machine#{index}")
   logger.log "connected container #{index} to router"
+
+  honey_script_name = ['honey_healthcare.sh', 'honey_financial.sh'].sample
+  container.create_honey honey_script_name
+  logger.log "created honey in container #{index}"
 end
 
 # create log files

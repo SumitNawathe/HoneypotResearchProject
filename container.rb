@@ -58,6 +58,13 @@ class Container
     `./background_tail.sh #{auth_log_file} #{output_file}`
   end
 
+  def create_honey honey_script_name
+    # assumes ssh connection with password "password" to container
+    # assumes file "./#{honey_script_name}" exist
+    `sshpass -p "password" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ./#{honey_script_name} root@#{ip}:~`
+    run "cd && bash ./#{honey_script_name}"
+  end
+
 private
   def lxc_info
     if @name then `sudo lxc-info -n "#{@name}"` else "" end
