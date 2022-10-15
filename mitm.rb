@@ -8,7 +8,7 @@ class MITM
   end
 
   def start logfile
-    puts "== MITM LOG == port=#{@port}"
+    # puts "== MITM LOG == port=#{@port}"
     `sudo forever -l #{logfile} start ~/MITM/mitm.js -n #{@network.router.name} -i #{@network.router.ip} -p #{@port} --auto-access --auto-access-fixed 2 --debug`
   end
 
