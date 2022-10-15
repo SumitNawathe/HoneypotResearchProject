@@ -11,6 +11,7 @@ end
 def package_honeypot_data ip
   timestamp = `date +%s`.chomp
   honeypot_dir = get_honeypot_dir(ip)
+  `echo #{ip} >> #{honeypot_dir}/external_ip.txt`
   `cd #{honeypot_dir} && tar -czf #{timestamp}.tar.gz *`
   honeypot_size = Network.create_from_file("#{honeypot_dir}/network_layout.txt").size
   destination = "#{home_dir}/size_#{honeypot_size}_data"
