@@ -23,7 +23,7 @@ HONEYPOT_DIR = "#{HOME_DIR}/#{EXTERNAL_IP}_files"
 `mkdir #{HONEYPOT_DIR}`
 
 # create network
-network_size = [3, 6].sample
+network_size = [2, 3].sample
 n = Network.create_fresh(network_size, "prefix")
 n.create_and_start_all
 n.write_to_file "#{HONEYPOT_DIR}/network_layout.txt"
@@ -36,14 +36,12 @@ mitm = MITM.new(n, port)
 logger.log "created mitm"
 sleep(3)
 
-# connect MITM to router container and external IP
+# create and start mitm
 initialize_ssh(n.router, "password")
 sleep(3)
 mitm.start("#{HONEYPOT_DIR}/mitm.log")
 sleep(3)
-mitm.connect_to_external_ip(EXTERNAL_IP)
-sleep(3)
-logger.log "started mitm, connected to external ip"
+logger.log "mitm started"
 
 # container ssh linking
 n.containers.each_with_index do |container, index|
@@ -56,14 +54,18 @@ end
 # create log files
 n.redirect_auth_logs_to HONEYPOT_DIR
 logger.log "auth log files redirected"
+
+# connect honeypot network to external ip
+mitm.connect_to_external_ip(EXTERNAL_IP)
+logger.log "mitm connected to external ip"
 logger.log "ready to accept attackers"
 
 # wait until attacker enters
 `sudo chmod a+r #{HONEYPOT_DIR}/mitm.log`
-`sudo tail -n 0 -f "#{HONEYPOT_DIR}/mitm.log" | grep -Eq "uthenticated"`
+`sudo tail -n 0 -f "#{HONEYPOT_DIR}/mitm.log" | grep -Eq "Compromising the honeypot"`
 logger.log "attacker entered"
 
-# create timer to destroy honeypot
+# timer to destroy honeypot
 scheduler = Rufus::Scheduler.new
 scheduler.in '1m' do
   logger.log "beginning honeypot destruction"
@@ -73,7 +75,9 @@ scheduler.in '1m' do
   mitm.stop
   logger.log "mitm stopped"
 
-  # retrieve and package logs/data
+  # process and package logs/data
+  get_duration_calculations(EXTERNAL_IP)
+  get_mitm_commands(EXTERNAL_IP)
   package_honeypot_data(EXTERNAL_IP)
   clear_honeypot_dir(EXTERNAL_IP)
   logger.log "logs retrieved"

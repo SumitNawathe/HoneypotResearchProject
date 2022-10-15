@@ -18,6 +18,22 @@ def package_honeypot_data ip
   `mv #{honeypot_dir}/#{timestamp}.tar.gz #{destination}`
 end
 
+def get_duration_calculations ip
+  honeypot_dir = get_honeypot_dir(ip)
+  network = Network.create_from_file("#{honeypot_dir}/network_layout.txt")
+  `touch #{honeypot_dir}/duration.processed`
+  File.open("#{honeypot_dir}/duration.processed", "a") do |file|
+    file.puts "#{network.router.name} " + `./duration_calculation.sh #{honeypot_dir}/#{network.router.name}.log`.chomp
+    for container in network.containers
+      file.puts "#{container.name} " + `./duration_calculation.sh #{honeypot_dir}/#{container.name}.log`.chomp
+    end
+  end
+end
+
+def get_mitm_commands ip
+  `./mitm_scrape.sh #{get_honeypot_dir(ip)}`
+end
+
 def clear_honeypot_dir ip
   `cd #{get_honeypot_dir(ip)} && rm -f *`
 end

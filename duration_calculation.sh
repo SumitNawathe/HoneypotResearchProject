@@ -19,4 +19,4 @@ do
    timeTotal=$((timeTotal + timeElapsed))
    n1=$((n1 + 2))
 done
-echo "Attacker spent $timeTotal seconds in honeypot"
+echo "$timeTotal" # seconds total spent in container
