@@ -1,3 +1,12 @@
+# install necesary libraries
+sudo apt-get update
+sudo apt-get install git -y
+sudo apt-get install python3 -y
+sudo apt-get install python-is-python3 -y
+sudo apt-get install pip -y
+pip install Faker
+pip install pandas
+
 from faker import Faker
 import pandas as pd
 import numpy as np
