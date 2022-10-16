@@ -70,6 +70,12 @@ class Container
     run "cd && bash ./#{honey_script_name}"
   end
 
+  def upload_honey honey_dir, honey_filename
+    # assumes ssh connection with password "password" to container
+    `sshpass -p "password" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "#{honey_dir}/#{honey_filename}" root@#{ip}:~`
+    run "cd && tar -xzf ./#{honey_filename} && rm ./#{honey_filename}"
+  end
+
 private
   def lxc_info
     if @name then `sudo lxc-info -n "#{@name}"` else "" end
