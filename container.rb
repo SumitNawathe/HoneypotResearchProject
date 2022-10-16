@@ -25,6 +25,11 @@ class Container
     self
   end
 
+  def create_from_snapshot old_name
+    # assumes container "old_name" has snapshot "snap0"
+    `sudo lxc-snapshot -n #{old_name} -r snap0 -N #{@name}`
+  end
+
   def start
     if !running? then `sudo lxc-start -n "#{@name}"` end
     self

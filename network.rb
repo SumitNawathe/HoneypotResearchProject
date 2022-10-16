@@ -41,6 +41,24 @@ class Network
     end
   end
 
+  def create_and_start_all_with_random_honey logger=nil
+    @router.create.start
+    @containers.each_with_index do |container, index|
+      case [0, 1].sample
+      when 0 # healthcare
+        honeytype = "healthcare"
+        num = [0, 1].sample # which snapshot; hardcoded
+      when 1 # financial
+        honeytype = "financial"
+        num = [0, 1, 2].sample # which snapshot; hardcoded
+      end
+
+      container.create_from_snapshot "#{honeytype}#{num}"
+      container.start
+      logger.log "container #{index} has #{honeytype} honey" if logger
+    end
+  end
+
   def stop_and_destroy_all
     containers_and_router.each do |container|
       container.stop

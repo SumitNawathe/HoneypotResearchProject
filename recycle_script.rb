@@ -25,7 +25,8 @@ HONEYPOT_DIR = "#{HOME_DIR}/#{EXTERNAL_IP}_files"
 # create network
 network_size = [2, 3].sample
 n = Network.create_fresh(network_size, "prefix")
-n.create_and_start_all
+# n.create_and_start_all
+n.create_and_start_all_with_random_honey
 n.write_to_file "#{HONEYPOT_DIR}/network_layout.txt"
 logger.log "created network size=#{network_size}"
 sleep(5)
@@ -50,9 +51,9 @@ n.containers.each_with_index do |container, index|
   add_alias(n.router, container, "machine#{index}")
   logger.log "connected container #{index} to router"
 
-  honey_script_name = ['honey_healthcare.sh', 'honey_financial.sh'].sample
-  container.create_honey honey_script_name
-  logger.log "created honey in container #{index}"
+  # honey_script_name = ['honey_healthcare.sh', 'honey_financial.sh'].sample
+  # container.create_honey honey_script_name
+  # logger.log "created honey in container #{index}"
 end
 
 # enforce key login on containers

@@ -19,12 +19,20 @@ git clone https://github.com/mrocklin/fakestockdata.git
 cd fakestockdata
 python <<END
 import fakestockdata
-fakestockdata.generate_stocks()
+import pandas as pd
+fakestockdata.generate_stocks(start=pd.Timestamp('2006-01-01'), freq=pd.Timedelta(minutes=20))
 END
 
 # move data to home, delete generation files
 cd
 cp -r ./fakestockdata/data/generated/* .
-rm -rf fakestockdata/
+sudo rm -rf fakestockdata/
+
+# randomly delete half files
+n=$( ls | wc -l )
+h=$(( 1 * n / 8 ))
+for stock in $( ls | shuf | head -n-$h ); do
+   sudo rm -rf "$stock"
+done
 rm -- "$0"
 
