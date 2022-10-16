@@ -20,7 +20,7 @@ cd fakestockdata
 python <<END
 import fakestockdata
 import pandas as pd
-fakestockdata.generate_stocks(start=pd.Timestamp('2006-01-01'), freq=pd.Timedelta(minutes=20))
+fakestockdata.generate_stocks(start=pd.Timestamp('2013-04-01'), freq=pd.Timedelta(minutes=30))
 END
 
 # move data to home, delete generation files
@@ -28,11 +28,22 @@ cd
 cp -r ./fakestockdata/data/generated/* .
 sudo rm -rf fakestockdata/
 
-# randomly delete half files
+# randomly delete most files
 n=$( ls | wc -l )
 h=$(( 1 * n / 8 ))
 for stock in $( ls | shuf | head -n-$h ); do
    sudo rm -rf "$stock"
 done
+
+# remove installed libraries
+pip uninstall pandas -y
+pip uninstall requests -y
+pip uninstall fakestockdata -y
+sudo apt-get remove --purge pip -y
+sudo apt-get remove --purge python-is-python3 -y
+sudo apt-get remove --purge python3 -y
+sudo apt-get autoremove -y
+sudo rm -rf ~/.cache/pip
+
 rm -- "$0"
 

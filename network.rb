@@ -47,7 +47,7 @@ class Network
       case [0, 1].sample
       when 0 # healthcare
         honeytype = "healthcare"
-        num = [0, 1].sample # which snapshot; hardcoded
+        num = [0, 1, 2].sample # which snapshot; hardcoded
       when 1 # financial
         honeytype = "financial"
         num = [0, 1, 2].sample # which snapshot; hardcoded

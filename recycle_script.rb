@@ -23,10 +23,10 @@ HONEYPOT_DIR = "#{HOME_DIR}/#{EXTERNAL_IP}_files"
 `mkdir #{HONEYPOT_DIR}`
 
 # create network
-network_size = [2, 3].sample
+network_size = [2].sample
 n = Network.create_fresh(network_size, "prefix")
-# n.create_and_start_all
-n.create_and_start_all_with_random_honey
+n.create_and_start_all
+# n.create_and_start_all_with_random_honey
 n.write_to_file "#{HONEYPOT_DIR}/network_layout.txt"
 logger.log "created network size=#{network_size}"
 sleep(5)
@@ -44,16 +44,25 @@ mitm.start("#{HONEYPOT_DIR}/mitm.log")
 sleep(3)
 logger.log "mitm started"
 
-# container ssh setup and linking
 n.containers.each_with_index do |container, index|
+  # set up ssh keys and alias
   initialize_ssh(container)
   place_public_key(n.router, container)
   add_alias(n.router, container, "machine#{index}")
   logger.log "connected container #{index} to router"
 
-  # honey_script_name = ['honey_healthcare.sh', 'honey_financial.sh'].sample
-  # container.create_honey honey_script_name
-  # logger.log "created honey in container #{index}"
+  # upload random honey
+  case [0, 1].sample
+  when 0
+    honeytype = "healthcare"
+    num = [0, 1, 2, 3].sample # hardcoded
+  when 1
+    honeytype = "financial"
+    num = [0, 1, 2].sample
+  end
+  honey_dir = `pwd`.chomp + "/honey/#{honeytype}"
+  honey_filename = "#{honeytype}#{num}.tar.gz"
+  container.upload_honey(honey_dir, honey_filename)
 end
 
 # enforce key login on containers
