@@ -23,7 +23,7 @@ HONEYPOT_DIR = "#{HOME_DIR}/#{EXTERNAL_IP}_files"
 `mkdir #{HONEYPOT_DIR}`
 
 # create network
-network_size = [8].sample
+network_size = [2].sample
 n = Network.create_fresh(network_size, "prefix")
 n.create_and_start_all
 # n.create_and_start_all_with_random_honey
@@ -50,10 +50,6 @@ n.containers.each_with_index do |container, index|
   place_public_key(n.router, container)
   add_alias(n.router, container, "machine#{index}")
   logger.log "connected container #{index} to router"
-
-  # honey_script_name = ['honey_healthcare.sh', 'honey_financial.sh'].sample
-  # container.create_honey honey_script_name
-  # logger.log "created honey in container #{index}"
 
   # upload random honey
   case [0, 1].sample
