@@ -44,6 +44,7 @@ mitm.start("#{HONEYPOT_DIR}/mitm.log")
 sleep(3)
 logger.log "mitm started"
 
+
 n.containers.each_with_index do |container, index|
   # set up ssh keys and alias
   initialize_ssh(container)
@@ -64,6 +65,9 @@ n.containers.each_with_index do |container, index|
   honey_filename = "#{honeytype}#{num}.tar.gz"
   container.upload_honey(honey_dir, honey_filename)
 end
+
+# allow connections in firewall rules
+allow_container_connections(n)
 
 # enforce key login on containers
 n.containers.each do |container|
@@ -93,6 +97,9 @@ scheduler.in '1m' do
   mitm.disconnect_from_external_ip(EXTERNAL_IP)
   mitm.stop
   logger.log "mitm stopped"
+
+  # disallow connections in firewall rules
+  disallow_container_connections(n)
 
   # process and package logs/data
   get_duration_calculations(EXTERNAL_IP)
