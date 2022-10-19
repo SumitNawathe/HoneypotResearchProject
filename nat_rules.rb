@@ -20,7 +20,7 @@ def nat_router_container
 end
 
 def allow_single_container_connection(router, container)
-  `sudo iptables -I FORWARD -p tcp -s #{router.ip} -d #{container.ip} -j ACCEPT`
+  `sudo iptables -I FORWARD -p tcp -s #{router.ip} -d #{container.ip} -j ACCEPT -w 10`
 end
 
 def allow_container_connections(network)
@@ -30,7 +30,7 @@ def allow_container_connections(network)
 end
 
 def disallow_single_container_connection(router, container)
-  `sudo iptables -D FORWARD -p tcp -s #{router.ip} -d #{container.ip} -j ACCEPT`
+  `sudo iptables -D FORWARD -p tcp -s #{router.ip} -d #{container.ip} -j ACCEPT -w 10`
 end
 
 def disallow_container_connections(network)

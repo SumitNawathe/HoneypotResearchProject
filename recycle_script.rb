@@ -21,10 +21,11 @@ logger.log "beginning recycling script"
 HOME_DIR = `cd && pwd`.chomp
 HONEYPOT_DIR = "#{HOME_DIR}/#{EXTERNAL_IP}_files"
 `mkdir #{HONEYPOT_DIR}`
+`cd #{HONEYPOT_DIR} && sudo rm -rf *`
 
 # create network
 network_size = [2].sample
-n = Network.create_fresh(network_size, "prefix")
+n = Network.create_fresh(network_size, "#{EXTERNAL_IP}-honeypot")
 n.create_and_start_all
 # n.create_and_start_all_with_random_honey
 n.write_to_file "#{HONEYPOT_DIR}/network_layout.txt"
@@ -112,8 +113,8 @@ scheduler.in '1m' do
   n.stop_and_destroy_all
   logger.log "honeypot destroyed"
 
-  # TODO: call recycle script again
-  
+  # call recycle script again
+  `nohup ./recycle_script.rb #{EXTERNAL_IP} &`
   exit(0)
 end
 scheduler.join
