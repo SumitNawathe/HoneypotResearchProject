@@ -24,7 +24,7 @@ HONEYPOT_DIR = "#{HOME_DIR}/#{EXTERNAL_IP}_files"
 `cd #{HONEYPOT_DIR} && sudo rm -rf *`
 
 # create network
-network_size = [2].sample
+network_size = [2, 4].sample
 n = Network.create_fresh(network_size, "#{EXTERNAL_IP}-honeypot")
 n.create_and_start_all
 # n.create_and_start_all_with_random_honey
@@ -50,7 +50,8 @@ n.containers.each_with_index do |container, index|
   # set up ssh keys and alias
   initialize_ssh(container)
   place_public_key(n.router, container)
-  add_alias(n.router, container, "machine#{index}")
+  random = [*('A'..'Z'),*('0'..'9')].shuffle[0,8].join
+  add_alias(n.router, container, "machine#{index}_#{random}")
   logger.log "connected container #{index} to router"
 
   # upload random honey
