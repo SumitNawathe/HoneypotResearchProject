@@ -24,7 +24,7 @@ HONEYPOT_DIR = "#{HOME_DIR}/#{EXTERNAL_IP}_files"
 `cd #{HONEYPOT_DIR} && sudo rm -rf *`
 
 # create network
-network_size = [3, 6, 9, 12].sample
+network_size = [3].sample
 n = Network.create_fresh(network_size, "#{EXTERNAL_IP}-honeypot")
 n.create_and_start_all
 # n.create_and_start_all_with_random_honey
@@ -66,6 +66,16 @@ n.containers.each_with_index do |container, index|
   honey_filename = "#{honeytype}#{num}.tar.gz"
   container.upload_honey(honey_dir, honey_filename)
 end
+
+# add banner to router container
+random = [*('A'..'Z'),*('0'..'9')].shuffle[0,16].join
+#n.router.run "echo \'Banner /etc/mybanner\n\' >> /etc/ssh/sshd_config"
+n.router.run "echo \'PrintMotd yes\n\' >> /etc/ssh/sshd_config"
+#n.router.run "echo \'------------------------------------------------------------\nAuthorized access only!\nThis is a router machine for internal use only.\nUnique identifier: #{random}\nNumber of machines accessible: #{network_size}\nPlease contact the IT department if you need to be given permission to access the network.\n------------------------------------------------------------\n\' > /etc/mybanner"
+n.router.run "echo \'------------------------------------------------------------\nAuthorized access only!\nThis is a router machine for internal use only.\nUnique identifier: #{random}\nNumber of machines accessible: #{network_size}\nPlease contact the IT department if you need to be given permission to access the network.\n------------------------------------------------------------\n\' > /etc/motd"
+#n.router.run "sudo systemctl restart sshd"
+n.router.run "sudo service ssh restart"
+sleep(3)
 
 # allow connections in firewall rules
 allow_container_connections(n)
