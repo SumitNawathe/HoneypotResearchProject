@@ -39,4 +39,22 @@ def disallow_container_connections(network)
   end
 end
 
+def allow_container_internet(container, external_ip)
+  `sudo iptables --table nat --insert POSTROUTING --source #{container.ip} --destination 0.0.0.0/0 --jump SNAT --to-source #{external_ip}`
+end
 
+def allow_network_internet(network, external_ip)
+  for container in ([network.router] + network.containers)
+    allow_container_internet(container, external_ip)
+  end
+end
+
+def disallow_container_internet(container, external_ip)
+  `sudo iptables --table nat --delete POSTROUTING --source #{container.ip} --destination 0.0.0.0/0 --jump SNAT --to-source #{external_ip}`
+end
+
+def disallow_network_internet(network, external_ip)
+  for container in ([network.router] + network.containers)
+    disallow_container_internet(container, external_ip)
+  end
+end

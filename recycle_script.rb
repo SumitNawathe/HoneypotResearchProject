@@ -24,7 +24,7 @@ HONEYPOT_DIR = "#{HOME_DIR}/#{EXTERNAL_IP}_files"
 `cd #{HONEYPOT_DIR} && sudo rm -rf *`
 
 # create network
-network_size = [2, 4].sample
+network_size = [3, 6, 9, 12].sample
 n = Network.create_fresh(network_size, "#{EXTERNAL_IP}-honeypot")
 n.create_and_start_all
 # n.create_and_start_all_with_random_honey
@@ -44,7 +44,6 @@ sleep(3)
 mitm.start("#{HONEYPOT_DIR}/mitm.log")
 sleep(3)
 logger.log "mitm started"
-
 
 n.containers.each_with_index do |container, index|
   # set up ssh keys and alias
@@ -80,6 +79,9 @@ end
 n.redirect_auth_logs_to HONEYPOT_DIR
 logger.log "auth log files redirected"
 
+# connect containers to internet through external IP
+allow_network_internet(n, EXTERNAL_IP)
+
 # connect honeypot network to external ip
 mitm.connect_to_external_ip(EXTERNAL_IP)
 logger.log "mitm connected to external ip"
@@ -92,13 +94,16 @@ logger.log "attacker entered"
 
 # timer to destroy honeypot
 scheduler = Rufus::Scheduler.new
-scheduler.in '1m' do
+scheduler.in '30m' do
   logger.log "beginning honeypot destruction"
 
   # disconnect mitm (kick attacker out)
   mitm.disconnect_from_external_ip(EXTERNAL_IP)
   mitm.stop
   logger.log "mitm stopped"
+
+  # connect containers to internet through external IP
+  disallow_network_internet(n, EXTERNAL_IP)
 
   # disallow connections in firewall rules
   disallow_container_connections(n)

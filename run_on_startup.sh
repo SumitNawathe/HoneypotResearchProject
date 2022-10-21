@@ -15,14 +15,14 @@ sudo -u student bash <<EOF
 cd "$PROJECT_DIR"
 sleep 15
 nohup ./recycle_script.rb 128.8.238.197 < /dev/null >/dev/null &
-sleep 30
+sleep 200
 nohup ./recycle_script.rb 128.8.238.29 < /dev/null >/dev/null &
-sleep 30
+sleep 200
 nohup ./recycle_script.rb 128.8.238.47 < /dev/null >/dev/null &
-sleep 30
+sleep 200
 nohup ./recycle_script.rb 128.8.238.178 < /dev/null >/dev/null &
-sleep 30
+sleep 200
 nohup ./recycle_script.rb 128.8.238.105 < /dev/null >/dev/null &
-sleep 30
+sleep 200
 EOF
 

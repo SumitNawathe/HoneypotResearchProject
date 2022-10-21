@@ -27,13 +27,13 @@ class MITM
 
     # add NAT rules
     `sudo iptables --table nat --insert PREROUTING --protocol tcp --source 0.0.0.0/0 --destination #{external_ip} --jump DNAT --to-destination 127.0.0.1:#{@port} -w 5`
-    `sudo iptables --table nat --insert POSTROUTING --protocol tcp --source 127.0.0.1 --source-port #{@port} --destination 0.0.0.0/0 --jump SNAT --to-source #{external_ip} -w 5`
+    # `sudo iptables --table nat --insert POSTROUTING --protocol tcp --source 127.0.0.1 --source-port #{@port} --destination 0.0.0.0/0 --jump SNAT --to-source #{external_ip} -w 5`
   end
 
   def disconnect_from_external_ip external_ip
     # remove NAT rules
     `sudo iptables --table nat --delete PREROUTING --protocol tcp --source 0.0.0.0/0 --destination #{external_ip} --jump DNAT --to-destination 127.0.0.1:#{@port} -w 5`
-    `sudo iptables --table nat --delete POSTROUTING --protocol tcp --source 127.0.0.1 --source-port #{@port} --destination 0.0.0.0/0 --jump SNAT --to-source #{external_ip} -w 5`
+    # `sudo iptables --table nat --delete POSTROUTING --protocol tcp --source 127.0.0.1 --source-port #{@port} --destination 0.0.0.0/0 --jump SNAT --to-source #{external_ip} -w 5`
   end
 
   def self.get_port_from_external_ip external_ip
