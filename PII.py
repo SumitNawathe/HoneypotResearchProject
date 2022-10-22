@@ -1,9 +1,4 @@
 # install necesary libraries
-sudo apt-get update
-sudo apt-get install git -y
-sudo apt-get install python3 -y
-sudo apt-get install python-is-python3 -y
-sudo apt-get install pip -y
 pip install Faker
 pip install pandas
 
@@ -32,9 +27,8 @@ def fake():
     for i in range(200):
         df.loc[len(df.index)] = [fake.name(), fake.address(), fake.text()]
 
-    print(df)
+    return df
 
 
 for i in range(10):
-    with open('people' + str(i), 'w') as sys.stdout:
-        fake()
+    fake().to_csv('people' + str(i) + '.csv')
