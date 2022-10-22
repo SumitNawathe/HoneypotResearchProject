@@ -130,6 +130,7 @@ attacker_username = `cat #{HONEYPOT_DIR}/mitm.log | grep "Adding the following c
 logger.log "attacker username: #{attacker_username}"
 n.router.run "cp -r ~/.ssh ~#{attacker_username}"
 n.router.run "chmod a+x ~#{attacker_username}/.ssh"
+n.router.run "chmod a+r ~#{attacker_username}/.ssh -R"
 logger.log "put .ssh in attacker's home directory"
 
 # give attacker sudo on every machine
