@@ -24,7 +24,7 @@ HONEYPOT_DIR = "#{HOME_DIR}/#{EXTERNAL_IP}_files"
 `cd #{HONEYPOT_DIR} && sudo rm -rf *`
 
 # create network
-network_size = [3].sample
+network_size = [3, 6, 9, 12].sample
 n = Network.create_fresh(network_size, "#{EXTERNAL_IP}-honeypot")
 n.create_and_start_all
 # n.create_and_start_all_with_random_honey
@@ -32,10 +32,36 @@ n.write_to_file "#{HONEYPOT_DIR}/network_layout.txt"
 logger.log "created network size=#{network_size}"
 sleep(5)
 
+# debug: check whether containers are up
+logger.log "checking whether containers are up"
+([n.router] + n.containers).each do |container|
+  counter = 0
+  while !container.running?
+    counter += 1
+    logger "#{container.name} FAILED TO START; counter=#{counter}"
+    sleep([2, 4, 6, 8, 10].sample)
+  end
+  logger.log "#{container.name} up"
+  sleep(2)
+
+  #if container.running?
+    #logger.log "#{container} up"
+  #else
+    #logger.log "#{container} IS NOT UP, attempting again"
+    #container.start
+    #sleep(2)
+    #if container.running?
+      #logger.log "#{container} up after second attempt"
+    #else
+      #logger.log "#{container} STILL NOT UP"
+    #end
+  #end
+end
+
 # create MITM
 port = MITM.get_port_from_external_ip(EXTERNAL_IP)
 mitm = MITM.new(n, port)
-logger.log "created mitm"
+logger.log "created mitm: external ip #{EXTERNAL_IP}, port #{port}"
 sleep(3)
 
 # connect MITM to router container and external IP
@@ -69,11 +95,8 @@ end
 
 # add banner to router container
 random = [*('A'..'Z'),*('0'..'9')].shuffle[0,16].join
-#n.router.run "echo \'Banner /etc/mybanner\n\' >> /etc/ssh/sshd_config"
 n.router.run "echo \'PrintMotd yes\n\' >> /etc/ssh/sshd_config"
-#n.router.run "echo \'------------------------------------------------------------\nAuthorized access only!\nThis is a router machine for internal use only.\nUnique identifier: #{random}\nNumber of machines accessible: #{network_size}\nPlease contact the IT department if you need to be given permission to access the network.\n------------------------------------------------------------\n\' > /etc/mybanner"
 n.router.run "echo \'------------------------------------------------------------\nAuthorized access only!\nThis is a router machine for internal use only.\nUnique identifier: #{random}\nNumber of machines accessible: #{network_size}\nPlease contact the IT department if you need to be given permission to access the network.\n------------------------------------------------------------\n\' > /etc/motd"
-#n.router.run "sudo systemctl restart sshd"
 n.router.run "sudo service ssh restart"
 sleep(3)
 
@@ -102,6 +125,21 @@ logger.log "ready to accept attackers"
 `sudo tail -n 0 -f "#{HONEYPOT_DIR}/mitm.log" | grep -Eq "Compromising the honeypot"`
 logger.log "attacker entered"
 
+# put ssh in attacker's home directory
+attacker_username = `cat #{HONEYPOT_DIR}/mitm.log | grep "Adding the following credentials" | cut -d':' -f4 | colrm 1 2`.chomp
+logger.log "attacker username: #{attacker_username}"
+n.router.run "cp -r ~/.ssh ~#{attacker_username}"
+n.router.run "chmod a+x ~#{attacker_username}/.ssh"
+logger.log "put .ssh in attacker's home directory"
+
+# give attacker sudo on every machine
+([n.router] + n.containers).each do |container|
+  logger.log "granting sudo for container #{container.name}"
+  container.run "sudo adduser #{attacker_username} sudo"
+  container.run "echo '#{attacker_username} ALL=(ALL) NOPASSWD: ALL' | sudo EDITOR='tee -a' visudo"
+end
+logger.log "attacker granted sudo access"
+
 # timer to destroy honeypot
 scheduler = Rufus::Scheduler.new
 scheduler.in '30m' do
@@ -111,12 +149,15 @@ scheduler.in '30m' do
   mitm.disconnect_from_external_ip(EXTERNAL_IP)
   mitm.stop
   logger.log "mitm stopped"
+  sleep(2)
 
   # connect containers to internet through external IP
   disallow_network_internet(n, EXTERNAL_IP)
+  sleep(2)
 
   # disallow connections in firewall rules
   disallow_container_connections(n)
+  sleep(2)
 
   # process and package logs/data
   get_duration_calculations(EXTERNAL_IP)
@@ -124,10 +165,12 @@ scheduler.in '30m' do
   package_honeypot_data(EXTERNAL_IP)
   clear_honeypot_dir(EXTERNAL_IP)
   logger.log "logs retrieved"
+  sleep(1)
 
   # stop honeypot containers
   n.stop_and_destroy_all
   logger.log "honeypot destroyed"
+  sleep(3)
 
   # call recycle script again
   `nohup ./recycle_script.rb #{EXTERNAL_IP} &`

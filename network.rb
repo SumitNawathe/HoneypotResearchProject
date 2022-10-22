@@ -38,9 +38,11 @@ class Network
     containers_and_router.each do |container|
       container.create
       container.start
+      sleep(2)
     end
   end
 
+  # deprecated
   def create_and_start_all_with_random_honey logger=nil
     @router.create.start
     @containers.each_with_index do |container, index|
@@ -63,6 +65,7 @@ class Network
     containers_and_router.each do |container|
       container.stop
       container.destroy
+      sleep(1)
     end
   end
 
@@ -82,7 +85,7 @@ private
   end
 
   def containers_and_router
-    @containers + [@router]
+    [@router] + @containers
   end
 end
 

@@ -4,10 +4,14 @@ PROJECT_DIR="/home/student/HoneypotResearchProject"
 cd "$PROJECT_DIR"
 
 # apply firewall rules
-sudo "$PROJECT_DIR"/baseline_firewall_rules.sh || true
+sudo "$PROJECT_DIR"/baseline_firewall_rules.sh
+while [ $? -ne 0 ]; do
+  sleep 2
+  sudo "$PROJECT_DIR"/baseline_firewall_rules.sh
+done
 
 # increase inofity limits
-sudo sysctl fs.inotify.max_user_instances=512
+sudo sysctl fs.inotify.max_user_instances=1024
 sudo sysctl fs.inotify.max_user_watches=4194304
 
 # start all recycling scripts

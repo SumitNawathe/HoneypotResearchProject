@@ -12,7 +12,7 @@ scope = [
         "https://www.googleapis.com/auth/drive.file",
         "https://www.googleapis.com/auth/drive"
 ]
-creds = gspread.service_account(filename='/home/sumit/HoneypotResearchProject/health_log_creds.json')
+creds = gspread.service_account(filename='/home/student/HoneypotResearchProject/health_log_creds.json')
 sheets = creds.open("Honeypot_Health_Logs")
 
 # utilities

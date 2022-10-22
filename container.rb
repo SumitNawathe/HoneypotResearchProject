@@ -25,6 +25,7 @@ class Container
     self
   end
 
+  # deprecated
   def create_from_snapshot old_name
     # assumes container "old_name" has snapshot "snap0"
     `sudo lxc-snapshot -n #{old_name} -r snap0 -N #{@name}`
