@@ -97,7 +97,7 @@ end
 # add banner to router container
 random = [*('A'..'Z'),*('0'..'9')].shuffle[0,16].join
 n.router.run "echo \'PrintMotd yes\n\' >> /etc/ssh/sshd_config"
-n.router.run "echo \'------------------------------------------------------------\nAuthorized access only!\nThis is a router machine for internal use only.\nUnique identifier: #{random}\nNumber of machines accessible: #{network_size}\nPlease contact the IT department if you need to be given permission to access the network.\n------------------------------------------------------------\n\' > /etc/motd"
+n.router.run "echo \'------------------------------------------------------------\nAuthorized access only!\nThis is a router machine for internal use only.\nUnique identifier: #{random}\nNumber of machines accessible by ssh: #{network_size}\nPlease contact the IT department if you need to be given permission to access the network.\n------------------------------------------------------------\n\' > /etc/motd"
 n.router.run "sudo service ssh restart"
 sleep(3)
 
