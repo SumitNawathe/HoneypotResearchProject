@@ -9,9 +9,9 @@ def print_host_health
   # 15 min system load
   puts `sudo uptime | rev | awk '{ print $1 }' | rev`
   # RX megabytes
-  puts `ifconfig enp4s1 | grep "RX packets" | awk '{ print $5 / 1024 }'`
+  puts `sudo ifconfig enp4s1 | grep "RX packets" | awk '{ print $5 / 1024 }'`
   # TX megabytes
-  puts `ifconfig enp4s1 | grep "TX packets" | awk '{ print $5 / 1024 }'`
+  puts `sudo ifconfig enp4s1 | grep "TX packets" | awk '{ print $5 / 1024 }'`
 end
 
 def print_container_health container

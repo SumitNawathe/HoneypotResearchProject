@@ -11,7 +11,7 @@ while [ $? -ne 0 ]; do
 done
 
 # increase inofity limits
-sudo sysctl fs.inotify.max_user_instances=1024
+sudo sysctl fs.inotify.max_user_instances=4096
 sudo sysctl fs.inotify.max_user_watches=4194304
 
 # start all recycling scripts

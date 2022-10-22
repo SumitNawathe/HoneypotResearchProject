@@ -39,6 +39,7 @@ logger.log "checking whether containers are up"
   while !container.running?
     counter += 1
     logger "#{container.name} FAILED TO START; counter=#{counter}"
+    container.start
     sleep([2, 4, 6, 8, 10].sample)
   end
   logger.log "#{container.name} up"
