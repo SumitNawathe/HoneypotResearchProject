@@ -81,14 +81,8 @@ n.containers.each_with_index do |container, index|
   logger.log "connected container #{index} to router"
 
   # upload random honey
-  case [0, 1].sample
-  when 0
-    honeytype = "healthcare"
-    num = [0, 1, 2, 3].sample # hardcoded
-  when 1
-    honeytype = "financial"
-    num = [0, 1, 2].sample
-  end
+  honeytype = ["healthcare", "financial", "PII"].sample
+  num = [0, 1, 2].sample
   honey_dir = `pwd`.chomp + "/honey/#{honeytype}"
   honey_filename = "#{honeytype}#{num}.tar.gz"
   container.upload_honey(honey_dir, honey_filename)
@@ -129,9 +123,10 @@ logger.log "attacker entered"
 # put ssh in attacker's home directory
 attacker_username = `cat #{HONEYPOT_DIR}/mitm.log | grep "Adding the following credentials" | cut -d':' -f4 | colrm 1 2`.chomp
 logger.log "attacker username: #{attacker_username}"
-n.router.run "cp -r ~/.ssh ~#{attacker_username}"
-n.router.run "chmod a+x ~#{attacker_username}/.ssh"
-n.router.run "chmod a+r ~#{attacker_username}/.ssh -R"
+sleep(1)
+n.router.run "cp -r ~/.ssh /home/#{attacker_username}/.ssh"
+n.router.run "chmod a+x /home/#{attacker_username}/.ssh"
+n.router.run "chmod a+r /home/#{attacker_username}/.ssh -R"
 logger.log "put .ssh in attacker's home directory"
 
 # give attacker sudo on every machine
