@@ -10,8 +10,8 @@ LOG=/home/student/processed_data/"processed_$1.log"
 inotifywait -m -e create -e moved_to --format "%f" $TARGET \
         | while read FILENAME
                 do
-                        mv $TARGET/$FILENAME $TRACKING/$FILENAME
-                        tar xvzf $TRACKING/$FILENAME -C $DESTINATION/$FILENAME
+                        cp $TARGET/$FILENAME $TRACKING/$FILENAME
+                        tar xvzf $TRACKING/$FILENAME -C $DESTINATION
                         cat $DESTINATION/duration.processed >> $LOG
                         cat $DESTINATION/mitm_commands.processed >> $LOG
                         echo "--------------------------------------------------------" >> $LOG
