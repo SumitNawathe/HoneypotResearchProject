@@ -122,11 +122,11 @@ done
 ####
 
 # allow external traffic to MITM (due to NAT rules)
-sudo iptables -A INPUT -p tcp -s 0.0.0.0/0 -d 127.0.0.1 --dport 5500 -j ACCEPT -m comment --comment "honeypot 1"
-sudo iptables -A INPUT -p tcp -s 0.0.0.0/0 -d 127.0.0.1 --dport 5510 -j ACCEPT -m comment --comment "honeypot 2"
-sudo iptables -A INPUT -p tcp -s 0.0.0.0/0 -d 127.0.0.1 --dport 5520 -j ACCEPT -m comment --comment "honeypot 3"
-sudo iptables -A INPUT -p tcp -s 0.0.0.0/0 -d 127.0.0.1 --dport 5530 -j ACCEPT -m comment --comment "honeypot 4"
-sudo iptables -A INPUT -p tcp -s 0.0.0.0/0 -d 127.0.0.1 --dport 5540 -j ACCEPT -m comment --comment "honeypot 5"
+# sudo iptables -A INPUT -p tcp -s 0.0.0.0/0 -d 127.0.0.1 --dport 5500 -j ACCEPT
+# sudo iptables -A INPUT -p tcp -s 0.0.0.0/0 -d 127.0.0.1 --dport 5510 -j ACCEPT
+# sudo iptables -A INPUT -p tcp -s 0.0.0.0/0 -d 127.0.0.1 --dport 5520 -j ACCEPT
+# sudo iptables -A INPUT -p tcp -s 0.0.0.0/0 -d 127.0.0.1 --dport 5530 -j ACCEPT
+# sudo iptables -A INPUT -p tcp -s 0.0.0.0/0 -d 127.0.0.1 --dport 5540 -j ACCEPT
 
 ############### HERE is a good place to block incoming/outgoing traffic ###################
 #                                                                                         #
