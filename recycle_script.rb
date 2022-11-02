@@ -112,6 +112,7 @@ allow_network_internet(n, EXTERNAL_IP)
 
 # connect honeypot network to external ip
 mitm.connect_to_external_ip(EXTERNAL_IP)
+`sudo iptables -A INPUT -p tcp -s 0.0.0.0/0 -d 127.0.0.1 --dport #{port} -j ACCEPT`
 logger.log "mitm connected to external ip"
 logger.log "ready to accept attackers"
 
@@ -119,6 +120,14 @@ logger.log "ready to accept attackers"
 `sudo chmod a+r #{HONEYPOT_DIR}/mitm.log`
 `sudo tail -n 0 -f "#{HONEYPOT_DIR}/mitm.log" | grep -Eq "Compromising the honeypot"`
 logger.log "attacker entered"
+
+# only allow that ip address
+attacker_ip = `cd #{HONEYPOT_DIR} && cat mitm.log | grep "Threshold: 2, Attempts: 2" | awk '{ print $8 }' | cut -d',' -f1`.chomp
+logger.log "attacker ip address: #{attacker_ip}"
+# allow attacker only in
+`sudo iptables -I INPUT -p tcp -s #{attacker_ip} -d 127.0.0.1 --dport #{port} -j ACCEPT`
+# don't allow anyone else in
+`sudo iptables -D INPUT -p tcp -s 0.0.0.0/0 -d 127.0.0.1 --dport #{port} -j ACCEPT`
 
 # put ssh in attacker's home directory
 attacker_username = `cat #{HONEYPOT_DIR}/mitm.log | grep "Adding the following credentials" | cut -d':' -f4 | colrm 1 2`.chomp
