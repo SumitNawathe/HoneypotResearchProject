@@ -157,6 +157,9 @@ scheduler.in '30m' do
   logger.log "mitm stopped"
   sleep(2)
 
+  # remove attacker-specific access iptables rule
+  `sudo iptables -D INPUT -p tcp -s #{attacker_ip} -d 127.0.0.1 --dport #{port} -j ACCEPT`
+
   # connect containers to internet through external IP
   disallow_network_internet(n, EXTERNAL_IP)
   sleep(2)
