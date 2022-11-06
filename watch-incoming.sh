@@ -31,8 +31,7 @@ inotifywait -m -e create -e moved_to --format "%f" $TARGET \
          single_commands=`cat $DESTINATION/mitm_commands.processed | grep -v ";" | wc -l`
          for (( d=1; d<=$single_commands; d++ ))
          do
-            cat $DESTINATION/mitm_commands.processed | grep -v ";" | head -$d | tail -1 >> $ALL_COMMANDS
-            cat $DESTINATION/mitm_commands.processed | grep -v ";" | head -$d | tail -1 >> $COMMANDS_HOLDING
+            cat $DESTINATION/mitm_commands.processed | grep -v ";" | head -$d | tail -1 | tee -a $ALL_COMMANDS $COMMANDS_HOLDING >/dev/null
          done
          n2=`cat $DESTINATION/mitm_commands.processed | grep ";" | wc -l`
          fields=0
@@ -42,8 +41,7 @@ inotifywait -m -e create -e moved_to --format "%f" $TARGET \
             fields=`cat $DESTINATION/mitm_commands.processed | grep ";" | head -$e | tail -1 | awk -F ';' '{print NF}'`
             for (( f=1; f<=$fields; f++ ))
             do
-               cat $DESTINATION/mitm_commands.processed | grep ";" | head -$e | tail -1 | cut -d';' -f$f | sed 's|^[[:blank:]]*||g' >> $ALL_COMMANDS
-               cat $DESTINATION/mitm_commands.processed | grep ";" | head -$e | tail -1 | cut -d';' -f$f | sed 's|^[[:blank:]]*||g' >> $COMMANDS_HOLDING
+               cat $DESTINATION/mitm_commands.processed | grep ";" | head -$e | tail -1 | cut -d';' -f$f | sed 's|^[[:blank:]]*||g' | tee -a $ALL_COMMANDS $COMMANDS_HOLDING >/dev/null
             done
             multiple_commands=$((fields + multiple_commands))
          done
