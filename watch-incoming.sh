@@ -16,6 +16,7 @@ inotifywait -m -e create -e moved_to --format "%f" $TARGET \
       do
          cp $TARGET/$FILENAME $TRACKING/$FILENAME
          tar xvzf $TRACKING/$FILENAME -C $DESTINATION
+         rm $DURATION
          ip_address=`cat $DESTINATION/external_ip.txt`
          size=`echo $1 | cut -d'_' -f2`
          n=$((size + 1))
@@ -25,26 +26,28 @@ inotifywait -m -e create -e moved_to --format "%f" $TARGET \
             name=$(cat $DESTINATION/file.txt)
             entryExitCount=`cat $DESTINATION/$name | grep "sshd\[.*\]: pam_unix(sshd:session)" | wc -l`
             pairCount=$((entryExitCount / 2))
-            if [[ $pairCount -gt 1 ]]; then
             timeTotal=0
-            n1=3
-            for (( b=2; b<=$pairCount; b++ ))
-            do
-               n2=$((2 * b))
-               entryMonthDate=`cat $DESTINATION/$name | grep "sshd\[.*\]: pam_unix(sshd:session)" | head -$n1 | tail -1 | colrm 7`
-               exitMonthDate=`cat $DESTINATION/$name | grep "sshd\[.*\]: pam_unix(sshd:session)" | head -$n2 | tail -1 | colrm 7`
-               entryTimeStamp=`cat $DESTINATION/$name | grep "sshd\[.*\]: pam_unix(sshd:session)" | head -$n1 | tail -1 | awk '{print $3}'`
-               exitTimeStamp=`cat $DESTINATION/$name | grep "sshd\[.*\]: pam_unix(sshd:session)" | head -$n2 | tail -1 | awk '{print $3}'`
-               entryMonthDateStamp=`date -d"$entryMonthDate" "+%Y-%m-%d"`
-               exitMonthDateStamp=`date -d"$exitMonthDate" "+%Y-%m-%d"`
-               entryStamp=`date -d"$entryMonthDateStamp $entryTimeStamp" +%s`
-               exitStamp=`date -d"$exitMonthDateStamp $exitTimeStamp" +%s`
-               timeElapsed=$((exitStamp - entryStamp))
-               timeTotal=$((timeTotal + timeElapsed))
-               n1=$((n1 + 2))
-            done
+            if [[ $pairCount -gt 1 ]]; then
+               timeTotal=0
+               n1=3
+               for (( b=2; b<=$pairCount; b++ ))
+               do
+                  n2=$((2 * b))
+                  entryMonthDate=`cat $DESTINATION/$name | grep "sshd\[.*\]: pam_unix(sshd:session)" | head -$n1 | tail -1 | colrm 7`
+                  exitMonthDate=`cat $DESTINATION/$name | grep "sshd\[.*\]: pam_unix(sshd:session)" | head -$n2 | tail -1 | colrm 7`
+                  entryTimeStamp=`cat $DESTINATION/$name | grep "sshd\[.*\]: pam_unix(sshd:session)" | head -$n1 | tail -1 | awk '{print $3}'`
+                  exitTimeStamp=`cat $DESTINATION/$name | grep "sshd\[.*\]: pam_unix(sshd:session)" | head -$n2 | tail -1 | awk '{print $3}'`
+                  entryMonthDateStamp=`date -d"$entryMonthDate" "+%Y-%m-%d"`
+                  exitMonthDateStamp=`date -d"$exitMonthDate" "+%Y-%m-%d"`
+                  entryStamp=`date -d"$entryMonthDateStamp $entryTimeStamp" +%s`
+                  exitStamp=`date -d"$exitMonthDateStamp $exitTimeStamp" +%s`
+                  timeElapsed=$((exitStamp - entryStamp))
+                  timeTotal=$((timeTotal + timeElapsed))
+                  n1=$((n1 + 2))
+               done
             fi
-            echo "$name $timeTotal" > $DURATION
+            containerName=`echo $name | cut -d'.' -f1-4`
+            echo "$containerName $timeTotal" >> $DURATION
          done
          n3=`cat $DESTINATION/duration.processed | wc -l`
          sum_time_total=0
