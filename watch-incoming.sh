@@ -18,7 +18,7 @@ inotifywait -m -e create -e moved_to --format "%f" $TARGET \
          tar xvzf $TRACKING/$FILENAME -C $DESTINATION
          rm $DURATION
          ip_address=`cat $DESTINATION/external_ip.txt`
-         interactive=`cat $DESTINATION/mitm.log | grep "line from reader" | wc -l`
+         interactive_lines=`cat $DESTINATION/mitm.log | grep "line from reader" | wc -l`
          size=`echo $1 | cut -d'_' -f2`
          n=$((size + 1))
          for (( a=1; a<=$n; a++ ))
@@ -85,6 +85,6 @@ inotifywait -m -e create -e moved_to --format "%f" $TARGET \
          cat $DESTINATION/duration.processed >> $LOG
          cat $DESTINATION/mitm_commands.processed >> $LOG
          echo "*---*" >> $LOG
-         echo "$sum_time_total,$sum_commands,$unique_commands,$time_router,$sum_time_internal,$interactive" >> $STAT
+         echo "$sum_time_total,$sum_commands,$unique_commands,$time_router,$sum_time_internal,$interactive_lines" >> $STAT
          rm $COMMANDS_HOLDING $DURATION
       done
